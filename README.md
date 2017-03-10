@@ -1,4 +1,4 @@
-# Performance evaluation of TCP Westwood and Westwood++ for Multirate 802.11 in ns-3.
+# Performance evaluation of TCP Westwood and Westwood+ for Multirate 802.11 in ns-3.
 
 ## Course Code: CS821
 
