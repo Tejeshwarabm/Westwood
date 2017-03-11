@@ -4,7 +4,7 @@
 
 ## Overview
 
-TCP Westwood and Westwood+ are TCP extensions proposed mainly for wireless networks[1]. This project aims to evaluate the performance of TCP Westwood and Westwood+ in the presence of diferent Rate Adaptation Algorithms in ns-3[2].
+TCP Westwood and Westwood+ are TCP extensions proposed mainly for wireless networks [1]. This project aims to evaluate the performance of TCP Westwood and Westwood+ in the presence of diferent Rate Adaptation Algorithms in ns-3 [2].
 
 ## References
 
