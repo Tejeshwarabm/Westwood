@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     cmd.Parse (argc, argv);
 
 
-    double stopTime = 10;
+    double stopTime = 20;
     uint16_t port;
     
     std::string queueDiscVariant = "ns3::PfifoFastQueueDisc";
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     * Setting the propagation dealy of edge links
     */
     PointToPointHelper edgeLink;
-    edgeLink.SetDeviceAttribute  ("DataRate", StringValue ("2Mbps"));
+    edgeLink.SetDeviceAttribute  ("DataRate", StringValue ("100Mbps"));
     edgeLink.SetChannelAttribute ("Delay", StringValue ("5ms"));
 
     /**
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
     * Initializing routing table on the nodes
     */
     Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
-    Simulator::Stop (Seconds(50.0));
+    Simulator::Stop (Seconds(30.0));
     Simulator::Run ();
     Simulator::Destroy ();
     
