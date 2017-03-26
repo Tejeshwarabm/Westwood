@@ -124,6 +124,9 @@ int main(int argc, char *argv[])
     Address tcpReceiverLocalAddress (InetSocketAddress (Ipv4Address::GetAny (), port));
     PacketSinkHelper tcpReceiver ("ns3::TcpSocketFactory", tcpReceiverLocalAddress);
 
+    ApplicationContainer senderApp;
+    ApplicationContainer receiverApp
+
     for(uint16_t i = 0; i < 3; i++)
     {
         AddressValue remoteAddress (InetSocketAddress (wirtop.GetRightIpv4Address (i), port)); 
@@ -131,11 +134,10 @@ int main(int argc, char *argv[])
         tcpSender.SetAttribute ("Remote", remoteAddress);
         tcpSender.SetAttribute ("SendSize", UintegerValue (1000));
         
-        ApplicationContainer senderApp = tcpSender.Install (wirtop.GetLeft (i));
-        senderApp.Start (Seconds (1));
-        senderApp.Stop (Seconds (stopTime));
+        senderApp.Add(tcpSender.Install (wirtop.GetLeft (i)));
 
-        ApplicationContainer receiverApp = tcpReceiver.Install (wirtop.GetRight (i));
+
+        receiverApp.Add(tcpReceiver.Install (wirtop.GetRight (i)));
 
         switch(i)
         {
@@ -147,9 +149,14 @@ int main(int argc, char *argv[])
                     break;
         }
         
-        receiverApp.Start (Seconds (1.0));
-        receiverApp.Stop (Seconds (stopTime));
+
     }
+
+    senderApp.Start (Seconds (1));
+    senderApp.Stop (Seconds (stopTime));
+
+    receiverApp.Start (Seconds (1.0));
+    receiverApp.Stop (Seconds (stopTime));
 
     Simulator::Schedule (Seconds (1.1), &CalculateThroughput);
 
@@ -164,6 +171,25 @@ int main(int argc, char *argv[])
     Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
     Simulator::Stop (Seconds(30.0));
     Simulator::Run ();
+
+    /**
+    * Goodput Calculation at the sink nodes.
+    */
+    uint32_t totalRxBytesCounter = 0;
+    for (uint32_t i = 0; i < receiverApp.GetN (	); i++)
+    {
+      Ptr <Application> app = receiverApp.Get (i);
+      Ptr <PacketSink> pktSink = DynamicCast <PacketSink> (app);
+      totalRxBytesCounter += pktSink->GetTotalRx ();
+      
+    }
+	
+    NS_LOG_UNCOND ("----------------------------\n:::::::::" 
+                     << "\nGoodput Bytes/sec:" 
+                     << totalRxBytesCounter/Simulator::Now ().GetSeconds ()); 
+    NS_LOG_UNCOND ("----------------------------");
+    std::cout<<"\n Successful \n";
+
     Simulator::Destroy ();
     
     return 0;
