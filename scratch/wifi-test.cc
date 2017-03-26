@@ -118,47 +118,93 @@ int main(int argc, char *argv[])
     * port to be used for first connection from node 0 from left to node 0 on
     * right side
     */
-    port = 8080;
+    port = 50000;
+    /**
+    * TCP application that send data from Node1 to Node3
+    * Configuring sender application
+    * Installing  application on left side nodes
+    * Starting the application on left side node at 1 second
+    */
+    AddressValue remoteAddress1 (InetSocketAddress (wirtop.GetRightIpv4Address (0), port));
+    BulkSendHelper tcpSender1 ("ns3::TcpSocketFactory", Address ());
+    tcpSender1.SetAttribute ("Remote", remoteAddress1);
+    tcpSender1.SetAttribute ("SendSize", UintegerValue (1000));
+    ApplicationContainer senderApp1 = tcpSender1.Install (wirtop.GetLeft (0));
+    senderApp1.Start (Seconds (1.0));
+    senderApp1.Stop (Seconds (stopTime));
 
 
-    Address tcpReceiverLocalAddress (InetSocketAddress (Ipv4Address::GetAny (), port));
-    PacketSinkHelper tcpReceiver ("ns3::TcpSocketFactory", tcpReceiverLocalAddress);
 
-    ApplicationContainer senderApp;
-    ApplicationContainer receiverApp
-
-    for(uint16_t i = 0; i < 3; i++)
-    {
-        AddressValue remoteAddress (InetSocketAddress (wirtop.GetRightIpv4Address (i), port)); 
-        BulkSendHelper tcpSender ("ns3::TcpSocketFactory", Address ());
-        tcpSender.SetAttribute ("Remote", remoteAddress);
-        tcpSender.SetAttribute ("SendSize", UintegerValue (1000));
-        
-        senderApp.Add(tcpSender.Install (wirtop.GetLeft (i)));
+    /**
+	* Configuring receiver application
+	* Installing packet sink application on right side nodes
+	* Starting the application at 1 second and stoping it at stopTime
+	*/
+	Address tcpReceiverLocalAddress1 (InetSocketAddress (Ipv4Address::GetAny (), port));
+	PacketSinkHelper tcpReceiver1 ("ns3::TcpSocketFactory", tcpReceiverLocalAddress1);
+	tcpReceiver1.SetAttribute ("Protocol", TypeIdValue (TcpSocketFactory::GetTypeId ()));
+	ApplicationContainer receiverApp1 = tcpReceiver1.Install (wirtop.GetRight (0));
+	receiverApp1.Start (Seconds (1.0));
+	receiverApp1.Stop (Seconds (stopTime));
 
 
-        receiverApp.Add(tcpReceiver.Install (wirtop.GetRight (i)));
+	port = 50001;
 
-        switch(i)
-        {
-            case 0: sink1 = StaticCast<PacketSink> (receiverApp.Get (0));
-                    break;
-            case 1: //sink2 = StaticCast<PacketSink> (receiverApp.Get (1));
-                    break;  
-            case 2: //sink3 = StaticCast<PacketSink> (receiverApp.Get (2));
-                    break;
-        }
-        
+	/**
+	* TCP application that send data from Node2 to Node3
+	* Configuring sender application
+	* Installing  application on left side nodes
+	* Starting the application on left side node2 at 15th second
+	*/
+	AddressValue remoteAddress2 (InetSocketAddress (wirtop.GetRightIpv4Address (0), port));
+	BulkSendHelper tcpSender2 ("ns3::TcpSocketFactory", Address ());
+	tcpSender2.SetAttribute ("Remote", remoteAddress2);
+	tcpSender2.SetAttribute ("SendSize", UintegerValue (1000));
+	ApplicationContainer senderApp2 = tcpSender2.Install (wirtop.GetLeft (1));
+	senderApp2.Start (Seconds (1.0));
+	senderApp2.Stop (Seconds (stopTime - 1));
 
-    }
+	/**
+	* Configuring receiver application
+	* Installing packet sink application on right side nodes
+	* Starting the application at 1.0 second and stoping it at stopTime
+	*/
+	Address tcpReceiverLocalAddress2 (InetSocketAddress (Ipv4Address::GetAny (), port));
+	PacketSinkHelper tcpReceiver2 ("ns3::TcpSocketFactory", tcpReceiverLocalAddress2);
+	tcpReceiver2.SetAttribute ("Protocol", TypeIdValue (TcpSocketFactory::GetTypeId ()));
+	ApplicationContainer receiverApp2 = tcpReceiver2.Install (wirtop.GetRight (1));
+	receiverApp2.Start (Seconds (1.0));
+	receiverApp2.Stop (Seconds (stopTime));
 
-    senderApp.Start (Seconds (1));
-    senderApp.Stop (Seconds (stopTime));
+	port = 50002;
 
-    receiverApp.Start (Seconds (1.0));
-    receiverApp.Stop (Seconds (stopTime));
+	/**
+	* TCP application that send data from Node2 to Node4
+	* Configuring sender application
+	* Installing  application on left side nodes
+	* Starting the application on left side node at 1st second
+	*/
+	AddressValue remoteAddress3 (InetSocketAddress (wirtop.GetRightIpv4Address (1), port));
+	BulkSendHelper tcpSender3 ("ns3::TcpSocketFactory", Address ());
+	tcpSender3.SetAttribute ("Remote", remoteAddress3);
+	tcpSender3.SetAttribute ("SendSize", UintegerValue (1000));
+	ApplicationContainer senderApp3 = tcpSender3.Install (wirtop.GetLeft (1));
+	senderApp3.Start (Seconds (1.0));
+	senderApp3.Stop (Seconds (stopTime - 1));
 
-    Simulator::Schedule (Seconds (1.1), &CalculateThroughput);
+    /**
+    * Configuring receiver application
+    * Installing packet sink application on right side nodes
+    * Starting the application at 1st second and stoping it at stopTime
+    */
+    Address tcpReceiverLocalAddress3 (InetSocketAddress (Ipv4Address::GetAny (), port));
+    PacketSinkHelper tcpReceiver3 ("ns3::TcpSocketFactory", tcpReceiverLocalAddress3);
+    tcpReceiver3.SetAttribute ("Protocol", TypeIdValue (TcpSocketFactory::GetTypeId ()));
+    ApplicationContainer receiverApp3 = tcpReceiver3.Install (wirtop.GetRight (2));
+    receiverApp3.Start (Seconds (1.0));
+    receiverApp3.Stop (Seconds (stopTime));
+
+    // Simulator::Schedule (Seconds (1.1), &CalculateThroughput);
 
     /**
     *  Enabling Pcap for point to point bottleneck channel to generate Pcap file
@@ -176,18 +222,21 @@ int main(int argc, char *argv[])
     * Goodput Calculation at the sink nodes.
     */
     uint32_t totalRxBytesCounter = 0;
-    for (uint32_t i = 0; i < receiverApp.GetN (	); i++)
-    {
-      Ptr <Application> app = receiverApp.Get (i);
-      Ptr <PacketSink> pktSink = DynamicCast <PacketSink> (app);
-      totalRxBytesCounter += pktSink->GetTotalRx ();
-      
-    }
-	
-    NS_LOG_UNCOND ("----------------------------\n:::::::::" 
-                     << "\nGoodput Bytes/sec:" 
-                     << totalRxBytesCounter/Simulator::Now ().GetSeconds ()); 
+    Ptr <Application> app1 = receiverApp1.Get (0);
+    Ptr <PacketSink> pktSink1 = DynamicCast <PacketSink> (app1);
+
+    Ptr <Application> app2 = receiverApp2.Get (0);
+    Ptr <PacketSink> pktSink2 = DynamicCast <PacketSink> (app2);
+
+    Ptr <Application> app3 = receiverApp3.Get (0);
+    Ptr <PacketSink> pktSink3 = DynamicCast <PacketSink> (app3);
+    totalRxBytesCounter = pktSink1->GetTotalRx () + pktSink2->GetTotalRx () + pktSink3->GetTotalRx ();
+
+    NS_LOG_UNCOND ("----------------------------\n:::::::::"
+                     << "\nGoodput Bytes/sec:"
+                     << totalRxBytesCounter/Simulator::Now ().GetSeconds ());
     NS_LOG_UNCOND ("----------------------------");
+
     std::cout<<"\n Successful \n";
 
     Simulator::Destroy ();
