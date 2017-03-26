@@ -26,18 +26,18 @@ using namespace ns3;
 uint32_t    nLeftLeaf = 3;
 uint32_t    nRightLeaf = 3;
 
-Ptr<PacketSink> sink1;//sink2,sink3;                        /* Pointer to the packet sink application */
-uint64_t lastTotalRx1 = 0;//,lastTotalRx2 = 0,lastTotalRx3 = 0;  
+Ptr<PacketSink> sink1, sink2, sink3;                        /* Pointer to the packet sink application */
+uint64_t lastTotalRx1 = 0, lastTotalRx2 = 0, lastTotalRx3 = 0;  
 
 void CalculateThroughput ()
 {
     Time now = Simulator::Now ();                                         /* Return the simulator's virtual time. */
-    //double cur = ((sink1->GetTotalRx() - lastTotalRx1) + (sink2->GetTotalRx() - lastTotalRx2) + (sink3->GetTotalRx() - lastTotalRx3)) *(double) 8/1e5;     /* Convert Application RX Packets to MBits. */
-    double cur = (sink1->GetTotalRx() - lastTotalRx1) * (double) 8/1e5;
+    double cur = ((sink1->GetTotalRx() - lastTotalRx1) + (sink2->GetTotalRx() - lastTotalRx2) + (sink3->GetTotalRx() - lastTotalRx3)) *(double) 8/1e5;     /* Convert Application RX Packets to MBits. */
+    // double cur = (sink1->GetTotalRx() - lastTotalRx1) * (double) 8/1e5;
     std::cout << now.GetSeconds () << "s: \t" << cur << " Mbit/s" << std::endl;
     lastTotalRx1 = sink1->GetTotalRx ();
-    //lastTotalRx2 = sink2->GetTotalRx ();
-    //lastTotalRx3 = sink3->GetTotalRx ();
+    lastTotalRx2 = sink2->GetTotalRx ();
+    lastTotalRx3 = sink3->GetTotalRx ();
     Simulator::Schedule (MilliSeconds (100), &CalculateThroughput);
 }
 
@@ -204,7 +204,13 @@ int main(int argc, char *argv[])
     receiverApp3.Start (Seconds (1.0));
     receiverApp3.Stop (Seconds (stopTime));
 
-    // Simulator::Schedule (Seconds (1.1), &CalculateThroughput);
+    /**
+    * Throughput Calculation at the receivers.
+    */
+    sink1 = StaticCast<PacketSink> (receiverApp1.Get (0));
+    sink2 = StaticCast<PacketSink> (receiverApp2.Get (0));
+    sink3 = StaticCast<PacketSink> (receiverApp3.Get (0));
+    Simulator::Schedule (Seconds (1.1), &CalculateThroughput);
 
     /**
     *  Enabling Pcap for point to point bottleneck channel to generate Pcap file
