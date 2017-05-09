@@ -4,7 +4,20 @@
 
 ## Overview
 
-TCP Westwood and Westwood+ are TCP extensions proposed mainly for wireless networks [1]. This project aims to evaluate the performance of TCP Westwood and Westwood+ in the presence of diferent Rate Adaptation Algorithms in ns-3 [2].
+TCP Westwood and Westwood+ are TCP extensions proposed mainly for wireless networks [1]. This project aims to evaluate the performance of TCP Westwood and Westwood+ in the presence of different Rate Adaptation Algorithms in ns-3 [2].
+
+### Simulation
+
+Performance evaluation of TCPW and TCPW+ for multirate 802.11 has been provided in
+
+`scratch/wifi.cc`
+
+and should be executed as
+
+ `./waf --run "scratch/wifi --simulationTime=20 --tcpVariant=westwood --raaAlgo=aarf"`
+ `./waf --run "scratch/wifi --simulationTime=20 --tcpVariant=westwoodplus --raaAlgo=aarf"`
+
+The above excution steps are for AARF, similarly for all different ARF can be excuted in the same line.
 
 ## References
 
