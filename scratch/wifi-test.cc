@@ -36,6 +36,46 @@ Ptr <PacketSink> pktSink2;
 Ptr <PacketSink> pktSink3;
 
 std::vector<std::string> tcpVec;
+uint32_t MacTxDropCount, PhyTxDropCount, PhyRxDropCount;
+
+void
+MacTxDrop(Ptr<const Packet> p)		// - MacTxDrop is called only when the node is not associated.
+{
+  NS_LOG_INFO("Packet Drop");
+  MacTxDropCount++;
+}
+
+void
+PrintDrop()
+{
+
+  std::cout << Simulator::Now().GetSeconds() << "\t" << MacTxDropCount << "\t"<< PhyTxDropCount << "\t" << PhyRxDropCount << "\n";
+    //MacTxDropCount = 0;
+    PhyTxDropCount = 0;
+    PhyRxDropCount = 0;
+  Simulator::Schedule(Seconds(1), &PrintDrop);
+}
+
+
+// PhyTxDrop is called only if you send a packet while the PHY is in sleep
+// mode (unlikely, the Mac should wake the PHY before using send). 
+void
+PhyTxDrop(Ptr<const Packet> p)
+{
+  NS_LOG_INFO("Packet Drop");
+  PhyTxDropCount++;
+}
+
+
+// Collisions should be in phyRxDropCount, as Yans wifi set collided frames snr on reception,
+// but it's not possible to differentiate from propagation loss.
+void
+PhyRxDrop(Ptr<const Packet> p)
+{
+  NS_LOG_INFO("Packet Drop");
+  PhyRxDropCount++;
+}
+
 
 
 /*
@@ -268,6 +308,14 @@ static void Comparison()
     *  Enabling Pcap for point to point bottleneck channel to generate Pcap file
     */
     //central.EnablePcapAll ("WiFi Dumbell", false);
+
+   // Trace Collisions
+   Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Mac/MacTxDrop", MakeCallback(&MacTxDrop));
+   Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/PhyRxDrop", MakeCallback(&PhyRxDrop));
+   Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/PhyTxDrop", MakeCallback(&PhyTxDrop));
+  
+   // PrintDrop function calculates number of packets drops
+   //Simulator::Schedule(Seconds(1), &PrintDrop);
 
     std::ostringstream tss;
     
