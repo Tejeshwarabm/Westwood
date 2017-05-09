@@ -12,9 +12,12 @@ Performance evaluation of TCPW and TCPW+ for multirate 802.11 has been provided 
 
 `scratch/wifi.cc`
 
-and should be executed as
+For TCP Westwood should be executed as
 
  `./waf --run "scratch/wifi --simulationTime=20 --tcpVariant=westwood --raaAlgo=aarf"`
+
+And for TCP Westwoodplus should be executed as
+
  `./waf --run "scratch/wifi --simulationTime=20 --tcpVariant=westwoodplus --raaAlgo=aarf"`
 
 The above excution steps are for AARF, similarly for all different ARF can be excuted in the same line.
